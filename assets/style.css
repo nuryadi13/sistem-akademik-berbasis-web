@@ -1,0 +1,26 @@
+body {
+  background: rgba(87, 118, 229, 0.75);
+}
+/* .logo {
+  margin-left: 590px;
+} */
+@media (max-width: 768px) {
+  .logo {
+    margin-left: 98px; /* Menjadikan margin-left menjadi 0 pada tampilan mobile */
+  }
+}
+.bt {
+  margin-left: 75px;
+}
+.username {
+  color: #7b6e6e;
+}
+.tag-head {
+  color: #fff;
+  text-align: center;
+  font-family: Inter;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
