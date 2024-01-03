@@ -30,15 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $hashed_password = password_hash($password, PASSWORD_DEFAULT); // Hash password
     $kelas = $_POST['kelas'];
     $no_whatsapp = $_POST['no_whatsapp'];
-    $nilai_Siswa = $_POST['nilai_Siswa'];
+    // $nilai_Siswa = $_POST['nilai_Siswa'];
 
     // Update data siswa ke database
-    $update_query = "UPDATE siswa SET username = '$username', password = '$hashed_password', kelas = '$kelas', no_whatsapp = '$no_whatsapp', nilai_Siswa = '$nilai_Siswa' WHERE id = $id";
+    $update_query = "UPDATE siswa SET username = '$username', password = '$hashed_password', kelas = '$kelas', no_whatsapp = '$no_whatsapp' WHERE id = $id";
     $update_result = mysqli_query($conn, $update_query);
 
     if ($update_result) {
         // Redirect ke halaman daftar siswa setelah berhasil diupdate
-        header('Location: daftar_siswa.php');
+        echo '<script>alert("Data berhasil diubah."); window.location.href="edit_siswa.php";</script>';
+        // header('Location: daftar_siswa.php');
         exit;
     } else {
         echo 'Gagal mengupdate data siswa.';

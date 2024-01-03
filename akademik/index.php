@@ -51,8 +51,8 @@ session_start();
   </div>
     
     <p class="text-center">Belum Punya Akun? <a href="register.php">Register</a></p>
-    <p class="text-center">Belum Punya Akun guru ? <a href="registerguru.php">Register</a></p>
-    <p class="text-center">Belum Punya Akun guru ? <a href="./tatausaha/registerTu.php">Register Tata Usaha</a></p>
+    <!-- <p class="text-center">Belum Punya Akun guru ? <a href="registerguru.php">Register</a></p>
+    <p class="text-center">Belum Punya Akun guru ? <a href="./tatausaha/registerTu.php">Register Tata Usaha</a></p> -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   </body>

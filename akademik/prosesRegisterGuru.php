@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo <<<EOT
             <script>
                 alert('Pendaftaran berhasil. Silakan login');
-                window.location.href='index.php';
+                window.location.href='registerGuru.php';
             </script>
 EOT;
     } else {

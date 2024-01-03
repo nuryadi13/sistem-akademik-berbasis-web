@@ -4,13 +4,13 @@ session_start();
 
 // Gantilah ini dengan cara sesuai implementasi login Anda
 // Contoh: Jika Anda menyimpan username dalam sesi, maka dapatkan nilai sesi tersebut
-if (isset($_SESSION['username'])) {
+if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'] == 'guru') {
     $username = $_SESSION['username'];
 } else {
-    // Jika tidak ada sesi, gantilah ini dengan cara lain sesuai implementasi login Anda
-    header("Location: login.php");
+    header("Location: index.php");
     exit();
 }
+
 
 ?>
 
@@ -91,22 +91,36 @@ if (isset($_SESSION['username'])) {
     <h2 class="user-name me-2 nama"><?php echo $_SESSION['username'];?>  &nbsp;<i class="fas fa-user"></i></h2>
   </div>
 </header>
-<div class="container mt-3">
-  <div class="row justify-content-end">
-    <div class="col-md-4">
-      <div class="input-group">
-        <input type="text" class="form-control" placeholder="Cari siswa...">
-        <button class="btn btn-outline-secondary" type="button">Cari</button>
-      </div>
+<div class="container mt-3 text-center">
+    <div class="row justify-content-end">
+        <div class="col-md-4">
+            <!-- Tambahkan atribut name pada input untuk memudahkan mendapatkan nilai pencarian -->
+            <form id="searchForm" method="GET" action="">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Cari siswa..." name="search">
+                    <!-- Tambahkan atribut form dan type="submit" pada button untuk menentukan formulir yang akan dikirimkan -->
+                    <button class="btn btn-outline-secondary" type="submit" form="searchForm">Cari</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
 </div>
+
 <!-- tabel -->
 <main class="container">
   <div class="row">
     <div class="col-md-12">
-      <a href="data_siswa.php"><button class="btn btn-warning"><li class="fas fa-eye"></li>  Lihat Data Siswa</button></a><br><br>
-      <a href="nilai.php"><button class="btn btn-success">Nilai Siswa</button></a><br><br>
+      <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Kelola Data
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="data_siswa.php">Kelola Data Siswa</a></li>
+          <li><a class="dropdown-item" href="nilai.php">Nilai Siswa</a></li>
+        </ul>
+  </div><br>
+
+  <a href="../quiz/tambah_soal.php"><button class="btn btn-success">Tambah Ujian</button></a>
       <h3 class="text-center">Daftar Nilai Siswa</h3>
       <table class="table">
         <thead>
@@ -134,25 +148,33 @@ if (isset($_SESSION['username'])) {
             }
 
             // Query untuk mendapatkan data siswa
-            $sql = "SELECT siswa.username, siswa.id AS siswa_id, siswa.kelas, penilaian.nis, penilaian.nilai, penilaian.mata_pelajaran 
-                    FROM siswa
-                    JOIN penilaian ON siswa.nis = penilaian.nis";
+            // Dapatkan nilai pencarian dari formulir
+                $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
 
-            $result = $conn->query($sql);
+                // Query untuk mendapatkan data siswa dengan pencarian
+                $sql = "SELECT siswa.username, siswa.id AS siswa_id, siswa.kelas, penilaian.nis, penilaian.nilai, penilaian.mata_pelajaran 
+                        FROM siswa
+                        JOIN penilaian ON siswa.nis = penilaian.nis
+                        WHERE siswa.username LIKE '%$searchTerm%'";
+
+                $result = $conn->query($sql);
+
 
             // Menampilkan data dalam tabel
+            // Menampilkan data dalam tabel
             while ($row = $result->fetch_assoc()) {
-              echo "<tr>
-                      <td>" . $row["username"] . "</td>
-                      <td>" . $row["kelas"] . "</td>
-                      <td>" . $row["mata_pelajaran"] . "</td>
-                      <td>" . $row["nilai"] . "</td>
-                      <td>
-                        <button class='btn btn-info' data-siswa-id='" . $row["siswa_id"] . "' data-nis='" . $row["nis"] . "' data-mata-pelajaran='" . $row["mata_pelajaran"] . "'>Edit</button>
-                        <button class='btn btn-danger'>Hapus</button>
-                      </td>
+                echo "<tr>
+                        <td>" . $row["username"] . "</td>
+                        <td>" . $row["kelas"] . "</td>
+                        <td>" . $row["mata_pelajaran"] . "</td>
+                        <td>" . $row["nilai"] . "</td>
+                        <td>
+                            <button class='btn btn-info' data-siswa-id='" . $row["siswa_id"] . "' data-nis='" . $row["nis"] . "' data-mata-pelajaran='" . $row["mata_pelajaran"] ."'>Edit</button>
+                            <button class='btn btn-danger' onclick='hapusData(" . $row["nis"] . ", \"" . $row["mata_pelajaran"] . "\")'>Hapus</button>
+                        </td>
                     </tr>";
             }
+
 
             // Menutup koneksi
             $conn->close();
@@ -195,73 +217,143 @@ if (isset($_SESSION['username'])) {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   document.querySelectorAll('.btn-info').forEach(function(button) {
-  button.addEventListener('click', function() {
-    var nis = button.getAttribute('data-nis');
-    var mataPelajaran = button.getAttribute('data-mata-pelajaran');
-    Swal.fire({
-      title: 'Pilih Edit',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Edit Siswa',
-      cancelButtonText: 'Edit Nilai',
-      cancelButtonColor: '#d33',
-      showCloseButton: true,
-      reverseButtons: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Jika user memilih Edit Siswa, redirect ke halaman data_siswa.php
-        var siswaId = button.getAttribute('data-siswa-id');
-        window.location.href = 'edit_siswa.php?id=' + siswaId;
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        // Jika user memilih Edit Nilai, tampilkan dialog untuk memasukkan nilai baru
+    button.addEventListener('click', function() {
+      var siswaId = button.getAttribute('data-siswa-id');
+      if (siswaId) {
+        var nis = button.getAttribute('data-nis');
+        var mataPelajaran = button.getAttribute('data-mata-pelajaran');
         Swal.fire({
-          title: 'Edit Nilai',
-          input: 'text',
-          inputLabel: 'Masukkan Nilai Baru',
-          inputPlaceholder: 'Nilai',
+          title: 'Pilih Edit',
+          icon: 'question',
           showCancelButton: true,
-          confirmButtonText: 'Simpan',
-          cancelButtonText: 'Batal',
-          inputValidator: (value) => {
-            if (!value) {
-              return 'Mohon masukkan nilai';
-            }
-          }
+          confirmButtonText: 'Edit Siswa',
+          cancelButtonText: 'Edit Nilai',
+          cancelButtonColor: '#d33',
+          showCloseButton: true,
+          reverseButtons: true
         }).then((result) => {
           if (result.isConfirmed) {
-            var siswaId = button.getAttribute('data-siswa-id');
-            var newValue = result.value; // Nilai yang dimasukkan oleh pengguna
-
-            // Kirim permintaan AJAX ke halaman server-side untuk menyimpan nilai ke database
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "update_nilai.php", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
-            xhr.onreadystatechange = function() {
-              if (xhr.readyState == 4 && xhr.status == 200) {
-                // Tanggapi dari server (misalnya: 'success' atau 'error')
-                var response = JSON.parse(xhr.responseText);
-
-                if (response.success) {
-                  // Tampilkan pesan sukses jika nilai berhasil diubah
-                  Swal.fire('Sukses!', 'Nilai berhasil diubah.', 'success');
-                } else {
-                  // Tampilkan pesan kesalahan jika terdapat masalah
-                  Swal.fire('Error!', 'Gagal mengubah nilai.', 'error');
+            // Jika user memilih Edit Siswa, redirect ke halaman data_siswa.php
+            window.location.href = 'edit_data_siswa.php?id=' + siswaId;
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+            // Jika user memilih Edit Nilai, tampilkan dialog untuk memasukkan nilai baru
+            Swal.fire({
+              title: 'Edit Nilai',
+              input: 'text',
+              inputLabel: 'Masukkan Nilai Baru',
+              inputPlaceholder: 'Nilai',
+              showCancelButton: true,
+              confirmButtonText: 'Simpan',
+              cancelButtonText: 'Batal',
+              inputValidator: (value) => {
+                if (!value) {
+                  return 'Mohon masukkan nilai';
                 }
               }
-            };
+            }).then((result) => {
+              if (result.isConfirmed) {
+                var newValue = result.value; // Nilai yang dimasukkan oleh pengguna
 
-            // Kirim data ke server-side
-            xhr.send("siswaId=" + siswaId + "&nis=" + nis + "&mataPelajaran=" + mataPelajaran + "&newValue=" + newValue);
+                // Kirim permintaan AJAX ke halaman server-side untuk menyimpan nilai ke database
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "update_nilai.php", true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+                xhr.onreadystatechange = function() {
+                  if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Tanggapi dari server (misalnya: 'success' atau 'error')
+                    var response = JSON.parse(xhr.responseText);
+
+                    if (response.success) {
+                      // Tampilkan pesan sukses jika nilai berhasil diubah
+                      Swal.fire('Sukses!', 'Nilai berhasil diubah.', 'success');
+                    } else {
+                      // Tampilkan pesan kesalahan jika terdapat masalah
+                      Swal.fire('Error!', 'Gagal mengubah nilai.', 'error');
+                    }
+                  }
+                };
+
+                // Kirim data ke server-side
+                xhr.send("siswaId=" + siswaId + "&nis=" + nis + "&mataPelajaran=" + mataPelajaran + "&newValue=" + newValue);
+              }
+            });
           }
         });
+      } else {
+        console.error("Attribute 'data-siswa-id' not found on the button.");
       }
     });
   });
-});
 </script>
 
+<!-- ... (Kode HTML lainnya) ... -->
+
+<script>
+function hapusData(nis, mataPelajaran) {
+    Swal.fire({
+        title: 'Konfirmasi',
+        text: 'Anda yakin ingin menghapus data ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "hapus_data_nilai_siswa.php", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        var response = JSON.parse(xhr.responseText);
+
+                        if (response.success) {
+                            Swal.fire('Sukses!', 'Data berhasil dihapus.', 'success');
+                            location.reload();
+                        } else {
+                            Swal.fire('Error!', 'Gagal menghapus data.', 'error');
+                        }
+                    } else {
+                        Swal.fire('Error!', 'Gagal menghubungi server.', 'error');
+                    }
+                }
+            };
+
+            xhr.send("nis=" + nis + "&mataPelajaran=" + mataPelajaran);
+        }
+    });
+}
+</script>
+
+<!-- ... (Kode HTML lainnya) ... -->
+
+<script>
+    // Tambahkan event listener untuk menangani pengiriman formulir pencarian
+    document.getElementById("searchForm").addEventListener("submit", function (event) {
+        // Cegah pengiriman formulir secara default
+        event.preventDefault();
+
+        // Dapatkan nilai pencarian dari formulir
+        var searchTerm = document.querySelector("#searchForm input[name='search']").value;
+
+        // Kirim permintaan AJAX ke server untuk mendapatkan hasil pencarian
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "dashboard_guru.php?search=" + encodeURIComponent(searchTerm), true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                // Perbarui tabel dengan hasil pencarian
+                document.querySelector("tbody").innerHTML = xhr.responseText;
+            }
+        };
+        xhr.send();
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
 
 
 </body>

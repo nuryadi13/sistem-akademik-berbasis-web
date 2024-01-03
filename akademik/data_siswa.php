@@ -14,7 +14,9 @@
 <body>
 
 <div class="container mt-5">
-    <a href="dashboardGuru.php"><h2 class="btn btn-warning"><< Kembali</h2></a>
+    <a href="dashboardGuru.php"><h2 class="btn btn-warning">< Kembali</h2></a><br>
+    <h3 class="text-center" style="color:aliceblue">Pengelolaan Data Siswa</h3>
+    <a href="register.php"><h2 class="btn btn-success">Tambah</h2></a>
     <table class="table" style="background-color: white;">
         <thead>
             <tr>
@@ -22,6 +24,7 @@
                 <th>NIS</th>
                 <th>Kelas</th>
                 <th>No. WhatsApp</th>
+                <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -50,19 +53,22 @@
                 $offset = ($page - 1) * $limit;
 
                 // Query untuk mendapatkan data siswa dengan batasan jumlah
-                $sql = "SELECT username, nis, kelas, no_whatsapp FROM siswa LIMIT $offset, $limit";
+                $sql = "SELECT username, id, nis, kelas, no_whatsapp FROM siswa LIMIT $offset, $limit";
                 $result = $conn->query($sql);
 
                 // Tampilkan data dalam tabel
                 if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
+                   while($row = $result->fetch_assoc()) {
                         echo "<tr>
                                 <td>" . $row["username"] . "</td>
                                 <td>" . $row["nis"] . "</td>
                                 <td>" . $row["kelas"] . "</td>
                                 <td>" . $row["no_whatsapp"] . "</td>
-                              </tr>";
+                                <td><a href='edit_data_siswa.php?id=" . $row["id"] . "' class='btn btn-success'>Edit</a>
+                                <a href='#' onclick='confirmDelete(" . $row["id"] . ")' class='btn btn-danger'>Delete</a>
+                            </tr>";
                     }
+
                 } else {
                     echo "<tr><td colspan='4'>Tidak ada data siswa</td></tr>";
                 }
@@ -90,6 +96,22 @@
     </div>
 </div>
 
+<!-- hapus data -->
+
+<script>
+function confirmDelete(id) {
+    // Tampilkan alert konfirmasi
+    var confirmation = confirm("Apakah Anda yakin ingin menghapus data siswa ini?");
+
+    // Jika pengguna mengonfirmasi, redirect ke halaman hapus_data_siswa.php dengan parameter ID
+    if (confirmation) {
+        window.location.href = 'hapus_data_siswa.php?id=' + id;
+    }
+}
+</script>
+
+
+<!-- end hapus -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

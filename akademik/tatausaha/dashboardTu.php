@@ -2,13 +2,13 @@
 // Mulai sesi jika belum dimulai
 session_start();
 
-// Gantilah ini dengan cara sesuai implementasi login Anda
-// Contoh: Jika Anda menyimpan username dalam sesi, maka dapatkan nilai sesi tersebut
+// // Gantilah ini dengan cara sesuai implementasi login Anda
+// // Contoh: Jika Anda menyimpan username dalam sesi, maka dapatkan nilai sesi tersebut
 if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];
 } else {
     // Jika tidak ada sesi, gantilah ini dengan cara lain sesuai implementasi login Anda
-    header("Location: login.php");
+    header("Location: ../index.php");
     exit();
 }
 
@@ -27,9 +27,10 @@ if ($conn->connect_error) {
 }
 
 // Sample SELECT query
+
 $sql = "SELECT siswa.username, siswa.kelas, siswa.no_whatsapp, pembayaran.status FROM siswa INNER JOIN pembayaran ON siswa.nis = pembayaran.nis";
-
-
+$sql2 = "SELECT username FROM tu";
+$result = $conn->query($sql2);
 $result = $conn->query($sql);
 
 // Close the database connection
@@ -97,7 +98,7 @@ $result = $conn->query($sql);
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="../data_siswa_tu.php">Data Siswa</a></li>
                 <li><a class="dropdown-item" href="../bayar_spp.php ">Data Pembayaran</a></li>
-                <li><a class="dropdown-item" href="guru.php">Data Guru</a></li>
+                <li><a class="dropdown-item" href="../guru.php">Data Guru</a></li>
             </ul>
         </div><br>
             <!-- end dropdawn -->
@@ -118,6 +119,7 @@ $result = $conn->query($sql);
             // Output data dari setiap baris
             while ($row = $result->fetch_assoc()) {
                 echo "<tr data-whatsapp-number='" . $row["no_whatsapp"] . "' data-username='" . $row["username"] . "'>";
+                // echo "<td>" . $usernameSession . "</td>"; 
                 echo "<td>" . $row["username"] . "</td>";
                 echo "<td>" . $row["kelas"] . "</td>";
                 echo "<td>" . $row["no_whatsapp"] . "</td>";

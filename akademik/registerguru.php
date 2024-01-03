@@ -57,7 +57,9 @@
             <button type="submit" class="btn btn-primary bt">Register</button>
         </form>
     </div>
-        <p class="text-center">sudah punya akun ? <a href="index.html">Login</a></p>
+        <p class="text-center">sudah punya akun ? <a href="index.html">Login</a>
+        <a href="guru.php" class="text-center">Kembali</a>
+    </p>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -2,13 +2,13 @@
 session_start();
 
 // Set username pada sesi (harap dihapus di produksi)
-// $_SESSION['username'] = "username";
+$_SESSION['username'] = "username";
 
-// // Pemeriksaan login
-// if (!isset($_SESSION['username']) || !isset($_SESSION['role'])) {
-//     header("Location: login.php");
-//     exit();
-// }
+// Pemeriksaan login
+if (!isset($_SESSION['username']) || !isset($_SESSION['role'])) {
+    header("Location: login.php");
+    exit();
+}
 
 // Penanganan pengiriman formulir
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
